@@ -33,10 +33,11 @@ fi
 EOF
 
 cat << 'EOF' > %{buildroot}%{_sysconfdir}/%{name}.conf
-copydir=/boot/efi
+copydir=/boot
 kernel=vmlinuz
-initrd=initrd.img
-command='cp -Tfvp'
+initrd=initrd
+old_initrd=initramfs-%v.img
+command='ln -sfv'
 EOF
 
 cat << 'EOF' > %{buildroot}%{_bindir}/%{name}
@@ -52,7 +53,7 @@ while true; do
   esac
 done
 
-. /etc/kernel-copyto.conf
+. %{_sysconfdir}/kernel-copyto.conf
 version="${version:-$(uname -r)}"
 bootdir="${bootdir:-/boot}"
 cd "${bootdir}"
@@ -77,7 +78,7 @@ if [ -f "${old_initrd}" ]; then
     eval "${command} '${old_initrd}' '$(format ${initrd})'"
 fi
 if [ -f "$old_kernel" ]; then
-    eval "${command} '${old_kernel}' '${kernel}'"
+    eval "${command} '${old_kernel}' '$(format ${kernel})'"
 fi
 
 
