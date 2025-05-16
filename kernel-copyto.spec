@@ -1,5 +1,5 @@
 Name: kernel-copyto
-Version: 2
+Version: 17
 Release: 1
 Summary: kernel copyto configurations for kernel-install
 License: GPL-3.0-or-later
@@ -35,9 +35,10 @@ EOF
 cat << 'EOF' > %{buildroot}%{_sysconfdir}/%{name}.conf
 copydir=/boot
 kernel=vmlinuz
-initrd=initrd
+initrd=initramfs.img
+old_kernel=/lib/modules/%v/vmlinuz
 old_initrd=initramfs-%v.img
-command='ln -sfv'
+command='ln -sfvr'
 EOF
 
 cat << 'EOF' > %{buildroot}%{_bindir}/%{name}

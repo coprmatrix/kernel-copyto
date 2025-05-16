@@ -1,0 +1,41 @@
+#!/bin/sh
+while true; do
+  case "$1" in
+  --*)
+    typeset  "${1:2}=$2"
+    shift
+    shift
+  ;;
+  *) break;;
+  esac
+done
+
+. /etc/kernel-copyto.conf
+version="${version:-$(uname -r)}"
+bootdir="${bootdir:-/boot}"
+cd "${bootdir}"
+
+format(){
+  echo -n "$(echo -n "$1" | sed "s~%v~${version}~g; s~%~%~g")" 
+}
+
+old_initrd="$(realpath "$(format ${old_initrd:-"initrd-%v"})")"
+old_kernel="$(realpath "$(format ${old_kernel:-"vmlinuz-%v"})")"
+
+copydir="${copydir:-"${bootdir}/efi"}"
+mkdir -p "${copydir}" || :
+cd "${copydir}"
+
+initrd="$(realpath --no-symlinks $(format "${initrd:-initrd.img}"))"
+kernel="$(realpath --no-symlinks $(format "${kernel:-kernel}"))"
+
+command="${command:-"cp -Tfvp"}"
+
+if [ -f "${old_initrd}" ]; then
+    eval "${command} '${old_initrd}' '$(format ${initrd})'"
+fi
+if [ -f "$old_kernel" ]; then
+    eval "${command} '${old_kernel}' '$(format ${kernel})'"
+fi
+
+
